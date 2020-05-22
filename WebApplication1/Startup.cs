@@ -17,7 +17,7 @@ namespace WebApplication1
 
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost/"), h => { });
+                var host = cfg.Host(new Uri("rabbitmq://rabbitmq/"), h => { });
             });
 
             services.AddSingleton<IPublishEndpoint>(bus);
@@ -25,7 +25,7 @@ namespace WebApplication1
             services.AddSingleton<IBus>(bus);
 
             var timeout = TimeSpan.FromSeconds(10);
-            var serviceAddress = new Uri("rabbitmq://localhost/order-service");
+            var serviceAddress = new Uri("rabbitmq://rabbitmq/order-service");
 
             services.AddScoped<IRequestClient<SubmitOrder, OrderAccepted>>(x =>
                 new MessageRequestClient<SubmitOrder, OrderAccepted>(x.GetRequiredService<IBus>(), serviceAddress, timeout, timeout));
@@ -39,7 +39,7 @@ namespace WebApplication1
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
 
             app.UseMvc();
-//            app.Run();
+            //            app.Run();
         }
     }
 }

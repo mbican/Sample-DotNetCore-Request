@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  webapplication1:
+    image: ${DOCKER_REGISTRY-}webapplication1
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+  sample-requestresponse:
+    image: ${DOCKER_REGISTRY-}sample-requestresponse
+    build:
+      context: .
+      dockerfile: Sample-RequestResponse/Dockerfile
+  rabbitmq:
+    image: rabbitmq:3-management-alpine

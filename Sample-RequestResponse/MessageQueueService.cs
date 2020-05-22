@@ -1,41 +1,40 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GreenPipes;
 using MassTransit;
 using MessageContracts;
 using Microsoft.Extensions.Hosting;
 
 namespace Sample_RequestResponse
 {
-  public class MessageQueueService : BackgroundService
-  {
-    private readonly IBusControl _bus;
-
-    public MessageQueueService()
+    public class MessageQueueService: BackgroundService
     {
-      _bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
+        private readonly IBusControl _bus;
+
+        public MessageQueueService()
         {
-          var host = cfg.Host(new Uri("rabbitmq://localhost/"), h => { });
+            _bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
+              {
+                  var host = cfg.Host(new Uri("rabbitmq://rabbitmq/"), h => { });
 
-          cfg.ReceiveEndpoint(host, "order-service", e =>
-          {
-            e.Handler<SubmitOrder>(context => context.RespondAsync<OrderAccepted>(new
+                  cfg.ReceiveEndpoint(host, "order-service", e =>
             {
-              context.Message.OrderId
-            }));
-          });
-        });
-    }
+                    e.Handler<SubmitOrder>(context => context.RespondAsync<OrderAccepted>(new
+                    {
+                        context.Message.OrderId
+                    }));
+                });
+              });
+        }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-      return _bus.StartAsync();
-    }
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            return _bus.StartAsync();
+        }
 
-    public override Task StopAsync(CancellationToken cancellationToken)
-    {
-      return Task.WhenAll(base.StopAsync(cancellationToken), _bus.StopAsync());
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.WhenAll(base.StopAsync(cancellationToken), _bus.StopAsync());
+        }
     }
-  }
 }
